@@ -2922,20 +2922,10 @@ function exportReport(fmt2) {
   if (fmt2==='json') {
     downloadJSON({orders,expenses}, 'bakery-report.json');
   } else {
-    // Orders sheet — Sr No, Date, Customer, Items Bought, Amount
-    let csv = 'Sr No,Date,Customer,Items Bought,Amount\n';
-    const activeOrders = orders.filter(o=>o.status!=='Cancelled');
-    activeOrders.forEach((o, i) => {
-      const itemsSummary = (o.items||[]).map(it => {
-        const p = DB.products.find(x => x.id === it.productId);
-        const name = p ? p.name : '?';
-        return it.qty && it.qty > 1 ? `${name} x${it.qty}` : name;
-      }).join(' | ');
-      const safeCustomer = (o.customer||'').replace(/,/g,'');
-      const safeItems = itemsSummary.replace(/,/g,';');
-      csv += `${o.orderNo||i+1},${o.date||''},${safeCustomer},"${safeItems}",${o.total||0}\n`;
-    });
-    downloadCSV(csv, 'dhanak-orders.csv');
+    let csv = 'Type,Date,Customer,Total,Status,Category,Amount\n';
+    orders.forEach(o => csv += `Order,${o.date||''},${o.customer||''},${o.total||0},${o.status||''},,\n`);
+    expenses.forEach(e => csv += `Expense,${e.date||''},,,,${e.category||''},${e.amount||0}\n`);
+    downloadCSV(csv, 'bakery-report.csv');
   }
 }
 
